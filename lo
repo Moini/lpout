@@ -14,7 +14,7 @@ def import_user(cls, name, data, parent=None):
     print data
 
 def import_milestone(cls, name, data, parent=None):
-    print "User: %s" % str(name)
+    print "Milestone: %s" % str(name)
     print data
 
 def import_comment(cls, name, data, parent=None):

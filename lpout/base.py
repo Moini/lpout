@@ -18,6 +18,7 @@
 Generic, non-API related functions.
 """
 
+import inspect
 from collections import defaultdict
 
 def IterObject(t=list):
@@ -83,10 +84,18 @@ class ApiObj(object):
 
             if self.signal and name not in self.already[self.cls()]:
                 self.already[self.cls()].add(name)
-                self.signal(name, self.data(), **kw)
+                kw = kw.copy()
+                kw['name'] = name
+                if 'data' in self.signal_args:
+                    # Do the data call ONLY if data is requested.
+                    kw['data'] = self.data()
+                for arg in kw:
+                    if arg not in signal_args:
+                        kw.pop(arg)
+                self.iid = self.signal(**kw)
 
     def __str__(self):
-        """Always returns the name/id of the object"""
+        """Always returns the link of the object"""
         if self._link is None:
             if self._conn:
                 self._link = self._conn.self_link
@@ -95,8 +104,8 @@ class ApiObj(object):
         return self._link
 
     def __repr__(self):
-        """Always returns the api link of the object"""
-        return self._name
+        """Always returns the useful target name of the object"""
+        return getattr(self, 'iid', None) or self._name
 
     @classmethod
     def cls(cls):
@@ -112,6 +121,7 @@ class ApiObj(object):
     @classmethod
     def connect(cls, signal):
         """Connect up a signal for this type of object, submits the data for each iter"""
+        cls.signal_args = inspect.getargspec(signal).args[1:]
         cls.signal = signal
 
     @classmethod
