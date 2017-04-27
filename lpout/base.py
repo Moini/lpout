@@ -90,7 +90,7 @@ class ApiObj(object):
                     # Do the data call ONLY if data is requested.
                     kw['data'] = self.data()
                 for arg in kw:
-                    if arg not in signal_args:
+                    if arg not in self.signal_args:
                         kw.pop(arg)
                 self.iid = self.signal(**kw)
 
