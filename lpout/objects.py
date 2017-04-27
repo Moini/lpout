@@ -132,6 +132,9 @@ class Attachment(ApiObj):
 
 class Label(ApiObj):
     """A label is any status or tag that in Git based systems is accounted as just a 'label'"""
+    def get_link(self, name):
+        return name # There is no URL/link for labels
+
     def data(self):
         label = LABELS.get(repr(self).upper(), ('#fff', None, repr(self)))
         data = dict(zip(('color', 'priority', 'name'), label))
