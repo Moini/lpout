@@ -19,7 +19,11 @@ Generic, non-API related functions.
 """
 
 import inspect
+import logging
+
 from collections import defaultdict
+from lazr.restfulclient.errors import ClientError
+
 
 def IterObject(t=list):
     """Decorator: Create an object from a generator function, default is list"""
@@ -86,10 +90,11 @@ class ApiObj(object):
                 self.already[self.cls()].add(name)
                 kw = kw.copy()
                 kw['name'] = name
+                kw['obj'] = self
                 if 'data' in self.signal_args:
                     # Do the data call ONLY if data is requested.
                     kw['data'] = self.data()
-                for arg in kw:
+                for arg in list(kw):
                     if arg not in self.signal_args:
                         kw.pop(arg)
                 self.iid = self.signal(**kw)
@@ -113,9 +118,14 @@ class ApiObj(object):
 
     def connection(self):
         """Always returns the linked connection if available"""
-        if self._conn is None:
+        while self._conn is None:
             from .client import Client
-            self._conn = Client().connection.load(str(self))
+            try:
+                self._conn = Client().connection.load(str(self))
+            except ClientError as err:
+                logging.error("Could not get connection: %s" % str(err))
+                if raw_input("Press enter to retry (q to quit)").lower().strip() == 'q':
+                    sys.exit(12)
         return self._conn
 
     @classmethod
