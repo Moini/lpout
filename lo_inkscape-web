@@ -1,0 +1,66 @@
+#!/usr/bin/env python
+
+from lpout.client import Client
+import sys
+import jsonpickle
+import os
+
+client = Client()
+project = client.project('inkscape-web')
+
+try:
+    bug_dir = sys.argv[1]
+    if os.path.isdir(bug_dir):
+        print "Writing to " + bug_dir
+    else:
+        raise Exception
+except:
+    bug_dir = "/tmp/bugs/"
+    if not os.path.exists(bug_dir):
+        os.mkdir(bug_dir)
+    print "Writing to /tmp/bugs"
+
+def export_bug(cls, name, data, parent=None):
+    # pickle bugs, so we don't have to re-download them too often
+    # and can examine the data
+    # This seems to get all open bugs which are not private/security
+    filename = str(name).replace("/", "_lp-bug_") + ".txt"
+    print "Writing " + filename
+    with open(os.path.join(bug_dir, filename), "w") as bugfile:
+        bugfile.write(jsonpickle.encode(data))
+
+def gitlab_bug_import():
+    # import bugs to gitlab, matching their properties
+    # TODO: check if markdownification is required!
+    #       do search and replace/use a library, depending on complexity
+
+    # get list of bug files
+
+    # read 1 bug from 1 bug_file
+
+    # search for bug title on gitlab, to make sure it doesn't exist yet
+
+    # add author name, lp bug id, 'imported from' to description (e.g. doctormo wrote: )
+    # owner
+
+    # add title, description, attachments, date_created
+    # title, description, id, date_created
+    # create issue
+
+    # check for labels, create label, if needed, add labels
+    # status._name, importance._name
+
+    # add author name to comment
+    # add comments (=notes) with contents, attachments, date_created
+    pass
+
+Client.connect(Bug=export_bug)
+
+for bug in project.get_bugs():
+    pass
+
+#
+# Notes
+#
+# python-gitlab3: https://github.com/doctormo/python-gitlab3/blob/master/gitlab3/_api_definition.py
+# optional parameters: https://docs.gitlab.com/ce/api/issues.html, https://docs.gitlab.com/ce/api/notes.html

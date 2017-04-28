@@ -20,6 +20,7 @@ Generic, non-API related functions.
 
 import inspect
 import logging
+import time
 
 from collections import defaultdict
 from lazr.restfulclient.errors import ClientError
@@ -45,7 +46,7 @@ def IterObjects(t=str):
 
 
 def WebLink(f):
-    """ 
+    """
     A web link means that the id we're interested in is within the web_link
     url. So we don't need to download the whole object to return the value.
     """
@@ -126,6 +127,7 @@ class ApiObj(object):
                 logging.error("Could not get connection: %s" % str(err))
                 if raw_input("Press enter to retry (q to quit)").lower().strip() == 'q':
                     sys.exit(12)
+                #time.sleep(5)
         return self._conn
 
     @classmethod
@@ -163,14 +165,13 @@ class ApiObj(object):
 
     def inline(self):
         """A split in the logic between elements with signals and those without
-        
+
         If an object class has a signal, then we return the self (object as link)
 
         If the object class does not have a signal, then we can inline the object's data
-        
+
         """
         if self.signal:
             return self
         else:
             return self.data()
-
